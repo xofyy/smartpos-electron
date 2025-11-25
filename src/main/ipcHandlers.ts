@@ -84,9 +84,17 @@ export function setupIpcHandlers() {
 
   // System Handlers
   ipcMain.handle('system:checkForUpdates', async () => {
-    const { autoUpdater } = await import('electron-updater')
-    const result = await autoUpdater.checkForUpdates()
-    return result?.updateInfo
+    try {
+      const { autoUpdater } = await import('electron-updater')
+      // Enable logging
+      autoUpdater.logger = console
+      
+      const result = await autoUpdater.checkForUpdates()
+      return { success: true, updateInfo: result?.updateInfo }
+    } catch (error: any) {
+      console.error('Update check failed:', error)
+      return { success: false, error: error.message || 'Unknown error' }
+    }
   })
 
   // Settings Handlers

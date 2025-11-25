@@ -98,7 +98,8 @@ export const translations = {
         update_downloaded: 'Güncelleme indi. Uygulamayı yeniden başlatın.',
         checking_for_updates: 'Güncellemeler kontrol ediliyor...',
         update_not_found: 'Güncel sürümü kullanıyorsunuz.',
-        update_error: 'Güncelleme kontrolü başarısız!'
+        update_error: 'Güncelleme kontrolü başarısız!',
+        check_updates: 'Güncellemeleri Kontrol Et'
     },
     en: {
         // Navigation
@@ -199,7 +200,8 @@ export const translations = {
         update_downloaded: 'Update downloaded. Restart application.',
         checking_for_updates: 'Checking for updates...',
         update_not_found: 'You are using the latest version.',
-        update_error: 'Update check failed!'
+        update_error: 'Update check failed!',
+        check_updates: 'Check for Updates'
     }
 }
 

@@ -59,7 +59,15 @@ export function SettingsPage() {
         try {
             addToast(t('checking_for_updates'), 'info')
 
-            const updateInfo = await window.api.system.checkForUpdates()
+            const result = await window.api.system.checkForUpdates()
+
+            if (!result.success) {
+                console.error('Update check failed:', result.error)
+                addToast(`${t('update_error')}: ${result.error}`, 'error')
+                return
+            }
+
+            const updateInfo = result.updateInfo
             const currentVersion = await window.api.system.getVersion()
 
             if (updateInfo && updateInfo.version !== currentVersion) {
@@ -67,9 +75,9 @@ export function SettingsPage() {
             } else {
                 addToast(t('update_not_found'), 'info')
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Update check failed:', error)
-            addToast(t('update_error'), 'error')
+            addToast(`${t('update_error')}: ${error.message}`, 'error')
         }
     }
 
@@ -175,7 +183,7 @@ export function SettingsPage() {
                                 className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                             >
                                 <RefreshCw size={20} />
-                                <span>Check for Updates</span>
+                                <span>{t('check_updates')}</span>
                             </button>
                         </div>
                     </div>

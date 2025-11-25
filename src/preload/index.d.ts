@@ -27,7 +27,7 @@ declare global {
       system: {
         factoryReset: () => Promise<{ success: boolean, message?: string }>
         backup: () => Promise<{ success: boolean, path?: string, message?: string }>
-        checkForUpdates: () => Promise<any>
+        checkForUpdates: () => Promise<{ success: boolean, updateInfo?: any, error?: string }>
         getVersion: () => Promise<string>
         onUpdateStatus: (callback: (status: string) => void) => void
       }
