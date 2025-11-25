@@ -39,6 +39,26 @@ export function initDatabase() {
         FOREIGN KEY(sale_id) REFERENCES sales(id)
       )
     `)
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    `)
+
+    // Insert default settings if not exist
+    const defaults = [
+      { key: 'currency', value: '₺' },
+      { key: 'language', value: 'tr' },
+      { key: 'theme', value: 'light' },
+      { key: 'printer_port', value: '' },
+      { key: 'vfd_port', value: '' }
+    ]
+
+    defaults.forEach(setting => {
+      db.run('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', [setting.key, setting.value])
+    })
   })
 }
 

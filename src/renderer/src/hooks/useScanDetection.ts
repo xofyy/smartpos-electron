@@ -10,7 +10,7 @@ interface ScanDetectionOptions {
 
 export const useScanDetection = ({
   timeToEvaluate = 100,
-  averageWaitTime = 50,
+
   minLength = 3,
   endChar = [13, 9], // Enter, Tab
   onComplete

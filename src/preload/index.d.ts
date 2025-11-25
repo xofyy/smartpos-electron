@@ -5,18 +5,28 @@ declare global {
     electron: ElectronAPI
     api: {
       products: {
-        getAll: () => Promise<any[]>
-        add: (product: any) => Promise<number | bigint>
-        update: (product: any) => Promise<void>
+        getAll: () => Promise<Product[]>
+        add: (product: Omit<Product, 'id'>) => Promise<number>
+        update: (product: Product) => Promise<void>
         delete: (id: number) => Promise<void>
-        getByBarcode: (barcode: string) => Promise<any>
+        getByBarcode: (barcode: string) => Promise<Product | null>
       }
       sales: {
-        processSale: (sale: any) => Promise<boolean>
+        process: (sale: any) => Promise<boolean>
+      }
+      settings: {
+        getAll: () => Promise<Record<string, string>>
+        set: (key: string, value: string) => Promise<void>
+      }
+      system: {
+        factoryReset: () => Promise<boolean>
+        backup: () => Promise<{ success: boolean; path: string }>
       }
       hardware: {
-        sendToPos: (data: string) => Promise<void>
+        listPorts: () => Promise<string[]>
+        printReceipt: (data: any) => Promise<boolean>
       }
     }
   }
 }
+

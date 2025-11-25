@@ -11,10 +11,19 @@ const api = {
     getByBarcode: (barcode) => ipcRenderer.invoke('products:getByBarcode', barcode)
   },
   sales: {
-    processSale: (sale) => ipcRenderer.invoke('sales:process', sale)
+    process: (sale) => ipcRenderer.invoke('sales:process', sale)
+  },
+  settings: {
+    getAll: () => ipcRenderer.invoke('settings:getAll'),
+    set: (key, value) => ipcRenderer.invoke('settings:set', { key, value })
+  },
+  system: {
+    factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
+    backup: () => ipcRenderer.invoke('system:backup')
   },
   hardware: {
-    sendToPos: (data) => ipcRenderer.invoke('hardware:sendToPos', data)
+    listPorts: () => ipcRenderer.invoke('hardware:listPorts'),
+    printReceipt: (data) => ipcRenderer.invoke('hardware:printReceipt', data)
   }
 }
 

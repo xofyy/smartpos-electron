@@ -18,7 +18,7 @@ export function useCheckout() {
         items: cart
       }
 
-      const success = await window.api.sales.processSale(saleData)
+      const success = await window.api.sales.process(saleData)
       
       if (success) {
         clearCart()
