@@ -85,7 +85,13 @@ export function setupIpcHandlers() {
   // System Handlers
   ipcMain.handle('system:checkForUpdates', async () => {
     try {
-      const { autoUpdater } = await import('electron-updater')
+      const module = await import('electron-updater')
+      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+      
+      if (!autoUpdater) {
+        throw new Error('Failed to load autoUpdater')
+      }
+
       // Enable logging
       autoUpdater.logger = console
       
