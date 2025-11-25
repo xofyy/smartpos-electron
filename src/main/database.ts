@@ -52,8 +52,11 @@ export function initDatabase() {
       { key: 'currency', value: '₺' },
       { key: 'language', value: 'tr' },
       { key: 'theme', value: 'light' },
-      { key: 'printer_port', value: '' },
-      { key: 'vfd_port', value: '' }
+      { key: 'scanner_type', value: 'hid' },
+      { key: 'scanner_port', value: '' },
+      { key: 'pos_port', value: '' },
+      { key: 'allow_negative_stock', value: 'true' },
+      { key: 'low_stock_threshold', value: '5' }
     ]
 
     defaults.forEach(setting => {

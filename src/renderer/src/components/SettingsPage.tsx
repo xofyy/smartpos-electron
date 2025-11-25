@@ -2,40 +2,18 @@ import { useState, useEffect } from 'react'
 import { Monitor, Trash2, HardDrive, CreditCard } from 'lucide-react'
 import { useSettingsStore } from '../store/useSettingsStore'
 import { useTranslation } from '../hooks/useTranslation'
+import { useToastStore } from '../store/useToastStore'
 
 export function SettingsPage() {
-    const { settings, updateSetting, loading } = useSettingsStore()
+    const { settings, updateSetting, loading, loadSettings } = useSettingsStore()
     const { t } = useTranslation()
-    // Helper functions for actions that are not in the store but use store data or API
-    const factoryReset = async () => {
-        if (confirm(t('reset_confirm'))) {
-            try {
-                await window.api.system.factoryReset()
-                window.location.reload()
-            } catch (error) {
-                console.error('Factory reset failed:', error)
-                alert(t('reset_fail'))
-            }
-        }
-    }
+    const { addToast } = useToastStore()
 
-    const backupData = async () => {
-        try {
-            const result = await window.api.system.backup()
-            if (result.success) {
-                alert(`${t('backup_success')} ${result.path}`)
-            } else {
-                alert(t('backup_fail'))
-            }
-        } catch (error) {
-            console.error('Backup failed:', error)
-            alert(t('backup_fail'))
-        }
-    }
     const [ports, setPorts] = useState<string[]>([])
     const [activeTab, setActiveTab] = useState<'general' | 'hardware' | 'data'>('general')
 
     useEffect(() => {
+        loadSettings()
         const loadPorts = async () => {
             try {
                 const portList = await window.api.hardware.listPorts()
@@ -46,6 +24,36 @@ export function SettingsPage() {
         }
         loadPorts()
     }, [])
+
+    const factoryReset = async () => {
+        if (confirm(t('reset_confirm'))) {
+            try {
+                const success = await window.api.system.factoryReset()
+                if (success) {
+                    window.location.reload()
+                } else {
+                    addToast(t('reset_fail'), 'error')
+                }
+            } catch (error) {
+                console.error('Factory reset failed:', error)
+                addToast(t('reset_fail'), 'error')
+            }
+        }
+    }
+
+    const backupData = async () => {
+        try {
+            const result = await window.api.system.backup()
+            if (result.success) {
+                addToast(`${t('backup_success')} ${result.path}`, 'success')
+            } else {
+                addToast(t('backup_fail'), 'error')
+            }
+        } catch (error) {
+            console.error('Backup failed:', error)
+            addToast(t('backup_fail'), 'error')
+        }
+    }
 
     if (loading) return <div className="p-8 text-center">Yükleniyor...</div>
 
@@ -112,6 +120,35 @@ export function SettingsPage() {
                                 <option value="light">{t('theme_light')}</option>
                                 <option value="dark">{t('theme_dark')}</option>
                             </select>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-2">
+                            <input
+                                type="checkbox"
+                                id="allow_negative_stock"
+                                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                                checked={settings.allow_negative_stock}
+                                onChange={(e) => updateSetting('allow_negative_stock', e.target.checked)}
+                            />
+                            <div>
+                                <label htmlFor="allow_negative_stock" className="font-medium text-gray-700 dark:text-gray-300">
+                                    {t('allow_negative_stock')}
+                                </label>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {t('negative_stock_hint')}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="pt-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('low_stock_threshold')}</label>
+                            <input
+                                type="number"
+                                min="0"
+                                className="w-full border dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={settings.low_stock_threshold}
+                                onChange={(e) => updateSetting('low_stock_threshold', parseInt(e.target.value))}
+                            />
                         </div>
                     </div>
                 )}

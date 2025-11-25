@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Edit, Trash2, Search } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react'
 import { ProductModal } from './ProductModal'
 import { useProducts } from '../hooks/useProducts'
 import { Product } from '../types'
@@ -13,6 +13,7 @@ export function ProductList() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingProduct, setEditingProduct] = useState<Product | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
+    const [showLowStock, setShowLowStock] = useState(false)
 
     const handleEdit = (product: Product) => {
         setEditingProduct(product)
@@ -30,15 +31,16 @@ export function ProductList() {
         setEditingProduct(null)
     }
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.barcode.includes(searchTerm)
-    )
+    const filteredProducts = products.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.barcode.includes(searchTerm)
+        const matchesLowStock = showLowStock ? p.stock <= settings.low_stock_threshold : true
+        return matchesSearch && matchesLowStock
+    })
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow h-full flex flex-col transition-colors duration-200">
-            <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
-                <div className="relative w-64">
+            <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center gap-4">
+                <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                     <input
                         type="text"
@@ -48,6 +50,13 @@ export function ProductList() {
                         onChange={e => setSearchTerm(e.target.value)}
                     />
                 </div>
+                <button
+                    onClick={() => setShowLowStock(!showLowStock)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition border ${showLowStock ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'}`}
+                >
+                    <Filter size={20} />
+                    {t('low_stock_filter')}
+                </button>
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -81,10 +90,7 @@ export function ProductList() {
                                 </td>
                                 <td className="p-3 text-green-600 dark:text-green-400 font-medium">{settings.currency}{product.price.toFixed(2)}</td>
                                 <td className="p-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${product.stock > 10 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                        product.stock > 0 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                        }`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs ${product.stock > settings.low_stock_threshold ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
                                         {product.stock} {t('in_stock')}
                                     </span>
                                 </td>

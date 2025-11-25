@@ -1,24 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 import { Product } from '../types'
+import { useProductStore } from '../store/useProductStore'
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchProducts = useCallback(async () => {
-    setLoading(true)
-    try {
-      const data = await window.api.products.getAll()
-      setProducts(data)
-      setError(null)
-    } catch (err) {
-      setError('Failed to fetch products')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const { products, loading, error, fetchProducts } = useProductStore()
 
   const deleteProduct = async (id: number) => {
     try {
@@ -41,7 +26,7 @@ export function useProducts() {
 
   useEffect(() => {
     fetchProducts()
-  }, [fetchProducts])
+  }, [])
 
   return {
     products,

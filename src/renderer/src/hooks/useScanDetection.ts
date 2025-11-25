@@ -20,6 +20,11 @@ export const useScanDetection = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
+        return
+      }
+
       const currentTime = Date.now()
       const timeDiff = currentTime - lastTime
 

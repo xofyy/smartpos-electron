@@ -4,6 +4,7 @@ export const translations = {
         nav_pos: 'POS Terminali',
         nav_products: 'Ürünler',
         nav_settings: 'Ayarlar',
+        nav_reports: 'Raporlar',
         
         // Common
         search_placeholder: 'Ürün ara...',
@@ -72,13 +73,34 @@ export const translations = {
         currency_example: 'Örnek: ₺, $, €',
         lang_tr: 'Türkçe',
         lang_en: 'English',
-        reset_fail: 'Sıfırlama başarısız!'
+        reset_fail: 'Sıfırlama başarısız!',
+        allow_negative_stock: 'Stoksuz Satışa İzin Ver',
+        negative_stock_hint: 'Stokta olmayan ürünlerin satışına izin verilir.',
+        insufficient_stock: 'Yetersiz Stok!',
+        low_stock_threshold: 'Kritik Stok Seviyesi',
+        low_stock_filter: 'Azalan Stok',
+        all_products: 'Tüm Ürünler',
+        product_not_found: 'Ürün bulunamadı!',
+        
+        // Reports
+        reports: 'Raporlar',
+        todays_revenue: 'Bugünün Cirosu',
+        todays_sales: 'Bugünün Satış Adedi',
+        weekly_sales_chart: 'Haftalık Satış Grafiği',
+        top_products: 'En Çok Satanlar',
+        quantity_sold: 'Satış Adedi',
+        no_data: 'Veri yok',
+        loading: 'Yükleniyor...',
+        export_csv: 'CSV Olarak İndir',
+        export_success: 'Rapor başarıyla kaydedildi:',
+        export_fail: 'Rapor kaydedilemedi!'
     },
     en: {
         // Navigation
         nav_pos: 'POS Terminal',
         nav_products: 'Products',
         nav_settings: 'Settings',
+        nav_reports: 'Reports',
         
         // Common
         search_placeholder: 'Search products...',
@@ -147,7 +169,27 @@ export const translations = {
         currency_example: 'Example: ₺, $, €',
         lang_tr: 'Turkish',
         lang_en: 'English',
-        reset_fail: 'Reset failed!'
+        reset_fail: 'Reset failed!',
+        allow_negative_stock: 'Allow Negative Stock',
+        negative_stock_hint: 'Allow selling products that are out of stock.',
+        insufficient_stock: 'Insufficient Stock!',
+        low_stock_threshold: 'Low Stock Threshold',
+        low_stock_filter: 'Low Stock',
+        all_products: 'All Products',
+        product_not_found: 'Product not found!',
+        
+        // Reports
+        reports: 'Reports',
+        todays_revenue: "Today's Revenue",
+        todays_sales: "Today's Sales",
+        weekly_sales_chart: 'Weekly Sales Chart',
+        top_products: 'Top Products',
+        quantity_sold: 'Quantity Sold',
+        no_data: 'No data',
+        loading: 'Loading...',
+        export_csv: 'Export CSV',
+        export_success: 'Report saved successfully:',
+        export_fail: 'Failed to save report!'
     }
 }
 

@@ -63,7 +63,7 @@ export function ProductGrid() {
                             </div>
                             <div className="mt-auto w-full flex justify-between items-end">
                                 <span className="text-lg font-bold text-gray-900 dark:text-white">{settings.currency}{product.price.toFixed(2)}</span>
-                                <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                <span className={`text-xs px-2 py-1 rounded-full ${product.stock <= settings.low_stock_threshold ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'}`}>
                                     {product.stock}
                                 </span>
                             </div>

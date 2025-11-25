@@ -1,23 +1,26 @@
 import { Trash2, Plus, Minus, CreditCard, Banknote } from 'lucide-react'
 import { useCartStore } from '../store/useCartStore'
+import { useProducts } from '../hooks/useProducts'
 import { useCheckout } from '../hooks/useCheckout'
 import { useSettingsStore } from '../store/useSettingsStore'
 import { useTranslation } from '../hooks/useTranslation'
+import { useToastStore } from '../store/useToastStore'
 
 export function CartPanel() {
     const { cart, removeFromCart, updateQuantity, totalAmount } = useCartStore()
     const { processSale, processing } = useCheckout()
     const { settings } = useSettingsStore()
     const { t } = useTranslation()
+    const { fetchProducts } = useProducts()
+    const { addToast } = useToastStore()
 
     const handleCheckout = async (method: 'cash' | 'card') => {
         const success = await processSale(method)
         if (success) {
-            alert(t('sale_completed'))
-            // Ideally trigger a product refresh here or use a global event
-            window.location.reload()
+            addToast(t('sale_completed'), 'success')
+            await fetchProducts()
         } else {
-            alert(t('sale_failed'))
+            addToast(t('sale_failed'), 'error')
         }
     }
 

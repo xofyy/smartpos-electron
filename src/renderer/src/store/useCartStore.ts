@@ -10,10 +10,27 @@ interface CartState {
   totalAmount: () => number
 }
 
+import { useSettingsStore } from './useSettingsStore'
+import { useToastStore } from './useToastStore'
+import { translations } from '../i18n/translations'
+
 export const useCartStore = create<CartState>((set, get) => ({
   cart: [],
   addToCart: (product) => {
     const { cart } = get()
+    const settings = useSettingsStore.getState().settings
+    
+    if (!settings.allow_negative_stock) {
+        const existingItem = cart.find(item => item.id === product.id)
+        const currentQty = existingItem ? existingItem.quantity : 0
+        
+        if (currentQty + 1 > product.stock) {
+            const language = settings.language === 'en' ? 'en' : 'tr'
+            useToastStore.getState().addToast(translations[language].insufficient_stock, 'error')
+            return
+        }
+    }
+
     const existingItem = cart.find(item => item.id === product.id)
 
     if (existingItem) {
@@ -40,8 +57,19 @@ export const useCartStore = create<CartState>((set, get) => ({
       get().removeFromCart(productId)
       return
     }
+
+    const { cart } = get()
+    const settings = useSettingsStore.getState().settings
+    const item = cart.find(i => i.id === productId)
+
+    if (item && !settings.allow_negative_stock && quantity > item.stock) {
+        const language = settings.language === 'en' ? 'en' : 'tr'
+        useToastStore.getState().addToast(translations[language].insufficient_stock, 'error')
+        return
+    }
+
     set({
-      cart: get().cart.map(item =>
+      cart: cart.map(item =>
         item.id === productId ? { ...item, quantity } : item
       )
     })

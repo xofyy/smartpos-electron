@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Product } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
+import { useToastStore } from '../store/useToastStore'
 
 interface ProductModalProps {
     isOpen: boolean
@@ -12,6 +13,7 @@ interface ProductModalProps {
 
 export function ProductModal({ isOpen, onClose, onSave, product }: ProductModalProps) {
     const { t } = useTranslation()
+    const { addToast } = useToastStore()
     const [formData, setFormData] = useState({
         barcode: '',
         name: '',
@@ -58,7 +60,7 @@ export function ProductModal({ isOpen, onClose, onSave, product }: ProductModalP
             onClose()
         } catch (error) {
             console.error('Failed to save product:', error)
-            alert(t('error_saving'))
+            addToast(t('error_saving'), 'error')
         }
     }
 

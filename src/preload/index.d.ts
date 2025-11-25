@@ -14,6 +14,12 @@ declare global {
       sales: {
         process: (sale: any) => Promise<boolean>
       }
+      reports: {
+        getDailySales: (startDate: string, endDate: string) => Promise<any[]>
+        getTopProducts: (limit: number) => Promise<any[]>
+        getSummaryStats: (date: string) => Promise<any>
+        export: (startDate: string, endDate: string) => Promise<{ success: boolean, path?: string, message?: string }>
+      }
       settings: {
         getAll: () => Promise<Record<string, string>>
         set: (key: string, value: string) => Promise<void>

@@ -13,6 +13,12 @@ const api = {
   sales: {
     process: (sale) => ipcRenderer.invoke('sales:process', sale)
   },
+  reports: {
+    getDailySales: (startDate, endDate) => ipcRenderer.invoke('reports:getDailySales', startDate, endDate),
+    getTopProducts: (limit) => ipcRenderer.invoke('reports:getTopProducts', limit),
+    getSummaryStats: (date) => ipcRenderer.invoke('reports:getSummaryStats', date),
+    export: (startDate, endDate) => ipcRenderer.invoke('reports:export', startDate, endDate)
+  },
   settings: {
     getAll: () => ipcRenderer.invoke('settings:getAll'),
     set: (key, value) => ipcRenderer.invoke('settings:set', { key, value })
