@@ -24,11 +24,14 @@ const api = {
     set: (key, value) => ipcRenderer.invoke('settings:set', { key, value })
   },
   system: {
+    checkForUpdates: () => ipcRenderer.invoke('system:checkForUpdates'),
+    startDownload: () => ipcRenderer.invoke('system:startDownload'),
+    installUpdate: () => ipcRenderer.invoke('system:installUpdate'),
+    getVersion: () => ipcRenderer.invoke('system:getVersion'),
     factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
     backup: () => ipcRenderer.invoke('system:backup'),
-    checkForUpdates: () => ipcRenderer.invoke('system:checkForUpdates'),
-    getVersion: () => ipcRenderer.invoke('system:getVersion'),
-    onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_, status) => callback(status))
+    onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_, value) => callback(value)),
+    onUpdateProgress: (callback) => ipcRenderer.on('update-progress', (_, value) => callback(value))
   },
   hardware: {
     listPorts: () => ipcRenderer.invoke('hardware:listPorts'),

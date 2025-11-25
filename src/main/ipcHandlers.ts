@@ -1,4 +1,4 @@
-import { ipcMain, dialog, app } from 'electron'
+import { ipcMain, dialog, app, BrowserWindow } from 'electron'
 import { ProductRepository } from './repositories/ProductRepository'
 import { ProductController } from './controllers/ProductController'
 import { SalesRepository } from './repositories/SalesRepository'
@@ -83,6 +83,7 @@ export function setupIpcHandlers() {
   })
 
   // System Handlers
+  // System Handlers
   ipcMain.handle('system:checkForUpdates', async () => {
     try {
       const module = await import('electron-updater')
@@ -92,14 +93,77 @@ export function setupIpcHandlers() {
         throw new Error('Failed to load autoUpdater')
       }
 
-      // Enable logging
+      // Configure autoUpdater
       autoUpdater.logger = console
-      
+      autoUpdater.autoDownload = false // We want to control when to download
+
+      // Remove previous listeners to avoid duplicates
+      autoUpdater.removeAllListeners()
+
+      // Set up event listeners
+      autoUpdater.on('checking-for-update', () => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-status', { status: 'checking' })
+      })
+
+      autoUpdater.on('update-available', (info) => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-status', { status: 'available', info })
+      })
+
+      autoUpdater.on('update-not-available', (info) => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-status', { status: 'not-available', info })
+      })
+
+      autoUpdater.on('error', (err) => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-status', { status: 'error', error: err.message })
+      })
+
+      autoUpdater.on('download-progress', (progressObj) => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-progress', progressObj)
+      })
+
+      autoUpdater.on('update-downloaded', (info) => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) win.webContents.send('update-status', { status: 'downloaded', info })
+      })
+
       const result = await autoUpdater.checkForUpdates()
       return { success: true, updateInfo: result?.updateInfo }
     } catch (error: any) {
       console.error('Update check failed:', error)
       return { success: false, error: error.message || 'Unknown error' }
+    }
+  })
+
+  ipcMain.handle('system:startDownload', async () => {
+    try {
+      const module = await import('electron-updater')
+      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+      if (autoUpdater) {
+        await autoUpdater.downloadUpdate()
+        return { success: true }
+      }
+      return { success: false, error: 'AutoUpdater not initialized' }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('system:installUpdate', async () => {
+    try {
+      const module = await import('electron-updater')
+      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+      if (autoUpdater) {
+        autoUpdater.quitAndInstall()
+        return { success: true }
+      }
+      return { success: false, error: 'AutoUpdater not initialized' }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   })
 

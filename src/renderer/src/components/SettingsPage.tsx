@@ -11,6 +11,13 @@ export function SettingsPage() {
 
     const [ports, setPorts] = useState<string[]>([])
     const [activeTab, setActiveTab] = useState<'general' | 'hardware' | 'data'>('general')
+    const [appVersion, setAppVersion] = useState<string>('1.0.0')
+
+    // Update State
+    const [updateStatus, setUpdateStatus] = useState<string>('idle') // idle, checking, available, not-available, downloading, downloaded, error
+    const [updateInfo, setUpdateInfo] = useState<any>(null)
+    const [downloadProgress, setDownloadProgress] = useState<number>(0)
+    const [updateError, setUpdateError] = useState<string | null>(null)
 
     useEffect(() => {
         loadSettings()
@@ -22,7 +29,46 @@ export function SettingsPage() {
                 console.error('Failed to list ports:', error)
             }
         }
+
+        const loadVersion = async () => {
+            try {
+                const version = await window.api.system.getVersion()
+                setAppVersion(version)
+            } catch (error) {
+                console.error('Failed to get version:', error)
+            }
+        }
+
         loadPorts()
+        loadVersion()
+
+        // Update Listeners
+        window.api.system.onUpdateStatus((data) => {
+            console.log('Update Status:', data)
+            setUpdateStatus(data.status)
+            if (data.info) setUpdateInfo(data.info)
+            if (data.error) setUpdateError(data.error)
+
+            if (data.status === 'checking') {
+                addToast(t('checking_for_updates'), 'info')
+            } else if (data.status === 'not-available') {
+                addToast(t('update_not_found'), 'info')
+            } else if (data.status === 'available') {
+                addToast(t('version_available') + ' ' + data.info.version, 'success')
+            } else if (data.status === 'downloaded') {
+                addToast(t('update_downloaded'), 'success')
+            } else if (data.status === 'error') {
+                addToast(`${t('update_error')}: ${data.error}`, 'error')
+            }
+        })
+
+        window.api.system.onUpdateProgress((data) => {
+            setDownloadProgress(data.percent)
+        })
+
+        return () => {
+            // Cleanup listeners if possible
+        }
     }, [])
 
     const factoryReset = async () => {
@@ -56,28 +102,33 @@ export function SettingsPage() {
     }
 
     const checkForUpdates = async () => {
+        setUpdateStatus('checking')
+        setUpdateError(null)
         try {
-            addToast(t('checking_for_updates'), 'info')
-
-            const result = await window.api.system.checkForUpdates()
-
-            if (!result.success) {
-                console.error('Update check failed:', result.error)
-                addToast(`${t('update_error')}: ${result.error}`, 'error')
-                return
-            }
-
-            const updateInfo = result.updateInfo
-            const currentVersion = await window.api.system.getVersion()
-
-            if (updateInfo && updateInfo.version !== currentVersion) {
-                addToast(t('update_available'), 'success')
-            } else {
-                addToast(t('update_not_found'), 'info')
-            }
+            await window.api.system.checkForUpdates()
         } catch (error: any) {
             console.error('Update check failed:', error)
-            addToast(`${t('update_error')}: ${error.message}`, 'error')
+            setUpdateStatus('error')
+            setUpdateError(error.message)
+        }
+    }
+
+    const startDownload = async () => {
+        setUpdateStatus('downloading')
+        try {
+            await window.api.system.startDownload()
+        } catch (error: any) {
+            setUpdateStatus('error')
+            setUpdateError(error.message)
+        }
+    }
+
+    const installUpdate = async () => {
+        try {
+            await window.api.system.installUpdate()
+        } catch (error: any) {
+            setUpdateStatus('error')
+            setUpdateError(error.message)
         }
     }
 
@@ -177,14 +228,77 @@ export function SettingsPage() {
                             />
                         </div>
 
-                        <div className="pt-6 border-t dark:border-gray-700">
-                            <button
-                                onClick={checkForUpdates}
-                                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
-                            >
-                                <RefreshCw size={20} />
-                                <span>{t('check_updates')}</span>
-                            </button>
+                        <div className="pt-6 border-t dark:border-gray-700 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-medium text-gray-900 dark:text-white">Software Update</h3>
+                                <span className="text-sm text-gray-500">v{appVersion}</span>
+                            </div>
+
+                            {updateStatus === 'idle' || updateStatus === 'not-available' || updateStatus === 'error' ? (
+                                <button
+                                    onClick={checkForUpdates}
+                                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <RefreshCw size={20} />
+                                    <span>{t('check_updates')}</span>
+                                </button>
+                            ) : null}
+
+                            {updateStatus === 'checking' && (
+                                <div className="text-center text-gray-600 dark:text-gray-400 py-2">
+                                    <RefreshCw size={20} className="animate-spin inline-block mr-2" />
+                                    {t('checking_for_updates')}
+                                </div>
+                            )}
+
+                            {updateStatus === 'available' && (
+                                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-100 dark:border-green-800">
+                                    <p className="text-green-800 dark:text-green-300 font-medium mb-2">
+                                        {t('version_available')} {updateInfo?.version}
+                                    </p>
+                                    <button
+                                        onClick={startDownload}
+                                        className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                                    >
+                                        Download Update
+                                    </button>
+                                </div>
+                            )}
+
+                            {updateStatus === 'downloading' && (
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                                        <span>{t('downloading')}</span>
+                                        <span>{Math.round(downloadProgress)}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                        <div
+                                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                            style={{ width: `${downloadProgress}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {updateStatus === 'downloaded' && (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                                    <p className="text-blue-800 dark:text-blue-300 font-medium mb-2">
+                                        {t('update_ready_desc')}
+                                    </p>
+                                    <button
+                                        onClick={installUpdate}
+                                        className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                    >
+                                        {t('restart_to_install')}
+                                    </button>
+                                </div>
+                            )}
+
+                            {updateStatus === 'error' && updateError && (
+                                <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded border border-red-100 dark:border-red-800">
+                                    {updateError}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

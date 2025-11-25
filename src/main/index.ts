@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, dialog } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -34,9 +34,7 @@ function createWindow(): void {
   }
 }
 
-import { autoUpdater } from 'electron-updater'
-
-// ...
+  // Auto-Update Logic moved to ipcHandlers.ts
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.smartpos')
@@ -49,30 +47,6 @@ app.whenReady().then(() => {
   })
 
   createWindow()
-
-  // Auto-Update Logic
-  if (!is.dev) {
-    autoUpdater.checkForUpdates()
-    
-    autoUpdater.on('update-available', () => {
-      const win = BrowserWindow.getAllWindows()[0]
-      if (win) win.webContents.send('update-status', 'available')
-    })
-
-    autoUpdater.on('update-downloaded', () => {
-      const win = BrowserWindow.getAllWindows()[0]
-      if (win) win.webContents.send('update-status', 'downloaded')
-      
-      dialog.showMessageBox({
-        type: 'info',
-        title: 'Update Ready',
-        message: 'A new version has been downloaded. Restart the application to apply the updates.',
-        buttons: ['Restart', 'Later']
-      }).then((returnValue) => {
-        if (returnValue.response === 0) autoUpdater.quitAndInstall()
-      })
-    })
-  }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

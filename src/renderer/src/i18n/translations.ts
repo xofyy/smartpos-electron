@@ -99,7 +99,11 @@ export const translations = {
         checking_for_updates: 'Güncellemeler kontrol ediliyor...',
         update_not_found: 'Güncel sürümü kullanıyorsunuz.',
         update_error: 'Güncelleme kontrolü başarısız!',
-        check_updates: 'Güncellemeleri Kontrol Et'
+        check_updates: 'Güncellemeleri Kontrol Et',
+        downloading: 'İndiriliyor...',
+        restart_to_install: 'Yeniden Başlat ve Yükle',
+        version_available: 'Yeni sürüm mevcut:',
+        update_ready_desc: 'Güncelleme indirildi. Değişiklikleri uygulamak için uygulamayı yeniden başlatın.'
     },
     en: {
         // Navigation
@@ -201,7 +205,11 @@ export const translations = {
         checking_for_updates: 'Checking for updates...',
         update_not_found: 'You are using the latest version.',
         update_error: 'Update check failed!',
-        check_updates: 'Check for Updates'
+        check_updates: 'Check for Updates',
+        downloading: 'Downloading...',
+        restart_to_install: 'Restart & Install',
+        version_available: 'New version available:',
+        update_ready_desc: 'Update downloaded. Restart the application to apply changes.'
     }
 }
 

@@ -49,10 +49,10 @@ function Layout() {
     window.addEventListener('keydown', handleKeyDown)
 
     // Update listeners
-    window.api.system.onUpdateStatus((status) => {
-      if (status === 'available') {
+    window.api.system.onUpdateStatus((data) => {
+      if (data.status === 'available') {
         addToast(t('update_available'), 'info')
-      } else if (status === 'downloaded') {
+      } else if (data.status === 'downloaded') {
         addToast(t('update_downloaded'), 'success')
       }
     })
