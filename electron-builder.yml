@@ -13,7 +13,14 @@ asarUnpack:
   - resources/**
   - node_modules/better-sqlite3/**
   - node_modules/serialport/**
+extraResources:
+  - from: resources
+    to: .
+    filter:
+      - splash.html
+      - splash.png
 win:
+  icon: build/icon.ico
   executableName: SmartPOS
   target: nsis
 nsis:
@@ -21,6 +28,13 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeader: build/installerHeader.png
+  installerSidebar: build/installerSidebar.png
+  deleteAppDataOnUninstall: false
+  displayLanguageSelector: true
+  multiLanguageInstaller: true
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

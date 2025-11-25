@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ipcMain, dialog, app, BrowserWindow } from 'electron'
 import { ProductRepository } from './repositories/ProductRepository'
 import { ProductController } from './controllers/ProductController'
@@ -7,6 +8,7 @@ import { SettingsRepository } from './repositories/SettingsRepository'
 import { SettingsController } from './controllers/SettingsController'
 import { ReportsRepository } from './repositories/ReportsRepository'
 import { ReportsController } from './controllers/ReportsController'
+// @ts-ignore
 import { listPorts, sendToPos } from './posService'
 import fs from 'fs'
 
@@ -101,10 +103,6 @@ export function setupIpcHandlers() {
       autoUpdater.removeAllListeners()
 
       // Set up event listeners
-      autoUpdater.on('checking-for-update', () => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-status', { status: 'checking' })
-      })
 
       autoUpdater.on('update-available', (info) => {
         const win = BrowserWindow.getAllWindows()[0]
@@ -123,7 +121,7 @@ export function setupIpcHandlers() {
 
       autoUpdater.on('download-progress', (progressObj) => {
         const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-progress', progressObj)
+        if (win) win.webContents.send('update-progress', { percent: progressObj.percent })
       })
 
       autoUpdater.on('update-downloaded', (info) => {
@@ -167,13 +165,13 @@ export function setupIpcHandlers() {
     }
   })
 
+  ipcMain.handle('system:getVersion', async () => {
+    return app.getVersion()
+  })
+
   // Settings Handlers
   ipcMain.handle('settings:getAll', async () => {
     return await settingsController.getAll()
-  })
-
-  ipcMain.handle('settings:set', async (_, { key, value }) => {
-    return await settingsController.set(key, value)
   })
 
   // System Handlers
@@ -185,8 +183,15 @@ export function setupIpcHandlers() {
     return await settingsController.backupData()
   })
 
-  ipcMain.handle('system:getVersion', () => {
-    return app.getVersion()
+  ipcMain.handle('system:confirm', async (_, { message, title }) => {
+    const { response } = await dialog.showMessageBox({
+      type: 'question',
+      buttons: ['Yes', 'No'],
+      defaultId: 1,
+      title: title || 'Confirm',
+      message: message
+    })
+    return response === 0
   })
 
   // Hardware Handlers
@@ -194,7 +199,50 @@ export function setupIpcHandlers() {
     return await listPorts()
   })
 
-  ipcMain.handle('hardware:sendToPos', async (_, data) => {
-    return await sendToPos(data)
+  // Initialize Serial Port from Settings
+  const initHardware = async () => {
+    try {
+      const portPath = await settingsController.get('scanner_port')
+      const scannerType = await settingsController.get('scanner_type')
+      
+      if (scannerType === 'serial' && portPath) {
+        // @ts-ignore
+        const { initSerialPort } = await import('./posService')
+        initSerialPort(portPath)
+      }
+    } catch (error) {
+      console.error('Failed to init hardware:', error)
+    }
+  }
+
+  // Initialize on startup
+  initHardware()
+
+  // Re-init on settings change
+  ipcMain.handle('settings:set', async (_, { key, value }) => {
+    await settingsController.set(key, value)
+    if (key === 'scanner_port' || key === 'scanner_type') {
+      initHardware()
+    }
+  })
+
+  // Window Controls
+  ipcMain.on('window-minimize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win?.minimize()
+  })
+
+  ipcMain.on('window-maximize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win?.isMaximized()) {
+      win.unmaximize()
+    } else {
+      win?.maximize()
+    }
+  })
+
+  ipcMain.on('window-close', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    win?.close()
   })
 }

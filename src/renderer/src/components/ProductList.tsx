@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react'
 import { ProductModal } from './ProductModal'
+import { Skeleton } from './Skeleton'
+import { EmptyState } from './EmptyState'
 import { useProducts } from '../hooks/useProducts'
 import { Product } from '../types'
 import { useTranslation } from '../hooks/useTranslation'
 import { useSettingsStore } from '../store/useSettingsStore'
 
 export function ProductList() {
-    const { products, deleteProduct, fetchProducts } = useProducts()
+    const { products, deleteProduct, fetchProducts, loading } = useProducts()
     const { t } = useTranslation()
     const { settings } = useSettingsStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -79,45 +81,63 @@ export function ProductList() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                        {filteredProducts.map((product) => (
-                            <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                                <td className="p-3 text-gray-600 dark:text-gray-400">{product.barcode}</td>
-                                <td className="p-3 font-medium text-gray-900 dark:text-white">{product.name}</td>
-                                <td className="p-3 text-gray-500 dark:text-gray-400">
-                                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs">
-                                        {product.category || t('uncategorized')}
-                                    </span>
-                                </td>
-                                <td className="p-3 text-green-600 dark:text-green-400 font-medium">{settings.currency}{product.price.toFixed(2)}</td>
-                                <td className="p-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${product.stock > settings.low_stock_threshold ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                                        {product.stock} {t('in_stock')}
-                                    </span>
-                                </td>
-                                <td className="p-3 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                            onClick={() => handleEdit(product)}
-                                            className="p-1 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded"
-                                        >
-                                            <Edit size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(product.id!)}
-                                            className="p-1 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 rounded"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i}>
+                                    <td className="p-3"><Skeleton className="h-4 w-24" /></td>
+                                    <td className="p-3"><Skeleton className="h-4 w-48" /></td>
+                                    <td className="p-3"><Skeleton className="h-4 w-20" /></td>
+                                    <td className="p-3"><Skeleton className="h-4 w-16" /></td>
+                                    <td className="p-3"><Skeleton className="h-4 w-12" /></td>
+                                    <td className="p-3"><Skeleton className="h-8 w-16 ml-auto" /></td>
+                                </tr>
+                            ))
+                        ) : filteredProducts.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="p-0">
+                                    <div className="py-12">
+                                        <EmptyState
+                                            icon={Search}
+                                            title={t('no_products')}
+                                            description={searchTerm ? t('no_results_desc') : t('add_product_desc')}
+                                        />
                                     </div>
                                 </td>
                             </tr>
-                        ))}
-                        {filteredProducts.length === 0 && (
-                            <tr>
-                                <td colSpan={6} className="p-8 text-center text-gray-500 dark:text-gray-400">
-                                    {t('no_products')}
-                                </td>
-                            </tr>
+                        ) : (
+                            filteredProducts.map((product) => (
+                                <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                                    <td className="p-3 text-gray-600 dark:text-gray-400">{product.barcode}</td>
+                                    <td className="p-3 font-medium text-gray-900 dark:text-white">{product.name}</td>
+                                    <td className="p-3 text-gray-500 dark:text-gray-400">
+                                        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs">
+                                            {product.category || t('uncategorized')}
+                                        </span>
+                                    </td>
+                                    <td className="p-3 text-brand-emerald font-medium">{settings.currency}{product.price.toFixed(2)}</td>
+                                    <td className="p-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs ${product.stock > settings.low_stock_threshold ? 'bg-brand-emerald/10 text-brand-emerald' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                            {product.stock} {t('in_stock')}
+                                        </span>
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(product)}
+                                                className="p-1 text-brand-navy hover:bg-brand-navy/10 dark:text-brand-emerald dark:hover:bg-brand-emerald/10 rounded transition-colors"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(product.id!)}
+                                                className="p-1 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 rounded transition-colors"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
                         )}
                     </tbody>
                 </table>

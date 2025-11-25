@@ -30,6 +30,7 @@ const api = {
     getVersion: () => ipcRenderer.invoke('system:getVersion'),
     factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
     backup: () => ipcRenderer.invoke('system:backup'),
+    confirm: (message, title) => ipcRenderer.invoke('system:confirm', { message, title }),
     onUpdateStatus: (callback) => {
       const subscription = (_event, value) => callback(value)
       ipcRenderer.on('update-status', subscription)
@@ -46,8 +47,12 @@ const api = {
     }
   },
   hardware: {
-    listPorts: () => ipcRenderer.invoke('hardware:listPorts'),
-    printReceipt: (data) => ipcRenderer.invoke('hardware:printReceipt', data)
+    listPorts: () => ipcRenderer.invoke('hardware:listPorts')
+  },
+  windowControl: {
+    minimize: () => ipcRenderer.send('window-minimize'),
+    maximize: () => ipcRenderer.send('window-maximize'),
+    close: () => ipcRenderer.send('window-close')
   }
 }
 

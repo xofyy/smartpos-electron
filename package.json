@@ -1,9 +1,13 @@
 {
   "name": "smartpos-electron",
-  "version": "0.0.3",
-  "description": "An Electron application with React and TypeScript",
+  "version": "0.0.4",
+  "description": "Professional Point of Sale System for Retail Businesses",
   "main": "./out/main/index.js",
-  "author": "xofyy",
+  "author": {
+    "name": "SmartPOS Team",
+    "email": "support@smartpos.com",
+    "url": "https://smartpos.com"
+  },
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",

@@ -1,4 +1,5 @@
-import { Trash2, Plus, Minus, CreditCard, Banknote } from 'lucide-react'
+import { Trash2, Plus, Minus, CreditCard, Banknote, ShoppingCart } from 'lucide-react'
+import { EmptyState } from './EmptyState'
 import { useCartStore } from '../store/useCartStore'
 import { useProducts } from '../hooks/useProducts'
 import { useCheckout } from '../hooks/useCheckout'
@@ -32,8 +33,12 @@ export function CartPanel() {
 
             <div className="flex-1 overflow-auto p-4 space-y-3">
                 {cart.length === 0 ? (
-                    <div className="text-center text-gray-400 mt-10">
-                        {t('cart_empty')}
+                    <div className="h-full flex items-center justify-center">
+                        <EmptyState
+                            icon={ShoppingCart}
+                            title={t('cart_empty')}
+                            description={t('cart_empty_desc')}
+                        />
                     </div>
                 ) : (
                     cart.map(item => (
@@ -73,16 +78,17 @@ export function CartPanel() {
                 )}
             </div>
 
-            <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
+            <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-lg">
                 <div className="flex justify-between items-center mb-4">
-                    <span className="text-gray-600 dark:text-gray-400">{t('total')}</span>
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white">{settings.currency}{totalAmount().toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">{t('total')}</span>
+                    <span className="text-3xl font-bold text-brand-navy dark:text-white">{settings.currency}{totalAmount().toFixed(2)}</span>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={() => handleCheckout('cash')}
                         disabled={cart.length === 0 || processing}
-                        className="flex items-center justify-center gap-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                        className="flex items-center justify-center gap-2 bg-brand-emerald hover:bg-emerald-600 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-md shadow-emerald-500/20"
                     >
                         <Banknote size={20} />
                         {processing ? t('processing') : t('cash')}
@@ -90,7 +96,7 @@ export function CartPanel() {
                     <button
                         onClick={() => handleCheckout('card')}
                         disabled={cart.length === 0 || processing}
-                        className="flex items-center justify-center gap-2 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                        className="flex items-center justify-center gap-2 bg-brand-navy hover:bg-brand-dark text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 shadow-md shadow-navy-500/20"
                     >
                         <CreditCard size={20} />
                         {processing ? t('processing') : t('card')}

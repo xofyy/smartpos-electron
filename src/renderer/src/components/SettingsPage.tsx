@@ -54,9 +54,9 @@ export function SettingsPage() {
             } else if (data.status === 'not-available') {
                 addToast(t('update_not_found'), 'info')
             } else if (data.status === 'available') {
-                addToast(t('version_available') + ' ' + data.info.version, 'success')
+                // Toast handled globally in App.tsx
             } else if (data.status === 'downloaded') {
-                addToast(t('update_downloaded'), 'success')
+                // Toast handled globally in App.tsx
             } else if (data.status === 'error') {
                 addToast(`${t('update_error')}: ${data.error}`, 'error')
             }
@@ -73,7 +73,7 @@ export function SettingsPage() {
     }, [])
 
     const factoryReset = async () => {
-        if (confirm(t('reset_confirm'))) {
+        if (await window.api.system.confirm(t('reset_confirm'), 'Factory Reset')) {
             try {
                 const success = await window.api.system.factoryReset()
                 if (success) {
@@ -259,12 +259,18 @@ export function SettingsPage() {
                                     </p>
                                     <button
                                         onClick={startDownload}
-                                        className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                                        className="w-full px-4 py-2 bg-brand-emerald hover:bg-emerald-600 text-white rounded-lg transition-colors shadow-sm"
                                     >
                                         {t('download_update')}
                                     </button>
                                 </div>
                             )}
+
+                            <div className="pt-6 border-t dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <p className="font-medium text-brand-navy dark:text-white mb-1">SmartPOS Lite</p>
+                                <p>Version {appVersion}</p>
+                                <p className="mt-1">&copy; {new Date().getFullYear()} SmartPOS Team. All rights reserved.</p>
+                            </div>
 
                             {updateStatus === 'downloading' && (
                                 <div className="space-y-2">

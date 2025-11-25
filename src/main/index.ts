@@ -6,20 +6,49 @@ import { initDatabase } from './database'
 import { setupIpcHandlers } from './ipcHandlers'
 
 function createWindow(): void {
+  // Create splash window
+  const splash = new BrowserWindow({
+    width: 500,
+    height: 300,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    icon: icon
+  })
+
+  // Load splash screen
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    // In dev, we can just load the file directly from resources
+    splash.loadFile(join(__dirname, '../../resources/splash.html'))
+  } else {
+    // In prod, it's in the resources folder
+    splash.loadFile(join(process.resourcesPath, 'splash.html'))
+  }
+  splash.center()
+
+  // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    frame: false, // Custom title bar
+    icon: icon,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    // Add a small delay to ensure splash is seen (optional)
+    setTimeout(() => {
+      splash.destroy()
+      mainWindow.show()
+    }, 2000)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -27,6 +56,8 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // HMR for renderer base on electron-vite cli.
+  // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {

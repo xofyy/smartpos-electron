@@ -27,6 +27,7 @@ declare global {
       system: {
         factoryReset: () => Promise<{ success: boolean, message?: string }>
         backup: () => Promise<{ success: boolean, path?: string }>
+        confirm: (message: string, title?: string) => Promise<boolean>
         checkForUpdates: () => Promise<{ success: boolean; updateInfo?: any; error?: string }>
         startDownload: () => Promise<{ success: boolean; error?: string }>
         installUpdate: () => Promise<{ success: boolean; error?: string }>
@@ -36,7 +37,11 @@ declare global {
       }
       hardware: {
         listPorts: () => Promise<string[]>
-        printReceipt: (data: any) => Promise<boolean>
+      }
+      windowControl: {
+        minimize: () => void
+        maximize: () => void
+        close: () => void
       }
     }
   }
