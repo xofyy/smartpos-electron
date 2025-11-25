@@ -7,6 +7,7 @@ import { SettingsPage } from './components/SettingsPage'
 import { ReportsPage } from './components/ReportsPage'
 import { useTranslation } from './hooks/useTranslation'
 import { useSettingsStore } from './store/useSettingsStore'
+import { useToastStore } from './store/useToastStore'
 import { ToastContainer } from './components/ToastContainer'
 
 function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: string }) {
@@ -30,10 +31,34 @@ function NavLink({ to, icon: Icon, label }: { to: string, icon: any, label: stri
 function Layout() {
   const { t } = useTranslation()
   const { loadSettings } = useSettingsStore()
+  const { addToast } = useToastStore()
 
   useEffect(() => {
     loadSettings()
   }, [])
+
+  // Added useEffect to listen for update status and F11 key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F11') {
+        e.preventDefault()
+        // Toggle fullscreen logic if needed
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    // Update listeners
+    window.api.system.onUpdateStatus((status) => {
+      if (status === 'available') {
+        addToast(t('update_available'), 'info')
+      } else if (status === 'downloaded') {
+        addToast(t('update_downloaded'), 'success')
+      }
+    })
+
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [addToast, t]) // Dependencies for useEffect
 
   return (
     <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors duration-200">

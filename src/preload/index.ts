@@ -25,7 +25,8 @@ const api = {
   },
   system: {
     factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
-    backup: () => ipcRenderer.invoke('system:backup')
+    backup: () => ipcRenderer.invoke('system:backup'),
+    onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_, status) => callback(status))
   },
   hardware: {
     listPorts: () => ipcRenderer.invoke('hardware:listPorts'),

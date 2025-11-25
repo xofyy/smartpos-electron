@@ -25,8 +25,9 @@ declare global {
         set: (key: string, value: string) => Promise<void>
       }
       system: {
-        factoryReset: () => Promise<boolean>
-        backup: () => Promise<{ success: boolean; path: string }>
+        factoryReset: () => Promise<{ success: boolean, message?: string }>
+        backup: () => Promise<{ success: boolean, path?: string, message?: string }>
+        onUpdateStatus: (callback: (status: string) => void) => void
       }
       hardware: {
         listPorts: () => Promise<string[]>

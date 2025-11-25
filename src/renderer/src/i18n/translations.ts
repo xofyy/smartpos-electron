@@ -93,7 +93,9 @@ export const translations = {
         loading: 'Yükleniyor...',
         export_csv: 'CSV Olarak İndir',
         export_success: 'Rapor başarıyla kaydedildi:',
-        export_fail: 'Rapor kaydedilemedi!'
+        export_fail: 'Rapor kaydedilemedi!',
+        update_available: 'Yeni güncelleme mevcut. İndiriliyor...',
+        update_downloaded: 'Güncelleme indi. Uygulamayı yeniden başlatın.'
     },
     en: {
         // Navigation
@@ -189,7 +191,9 @@ export const translations = {
         loading: 'Loading...',
         export_csv: 'Export CSV',
         export_success: 'Report saved successfully:',
-        export_fail: 'Failed to save report!'
+        export_fail: 'Failed to save report!',
+        update_available: 'New update available. Downloading...',
+        update_downloaded: 'Update downloaded. Restart application.'
     }
 }
 
