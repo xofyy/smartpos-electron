@@ -1,5 +1,5 @@
 appId: com.smartpos.lite
-productName: SmartPOS Lite
+productName: SmartPOS.Lite
 directories:
   buildResources: build
 files:
