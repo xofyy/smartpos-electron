@@ -57,10 +57,19 @@ export function SettingsPage() {
 
     const checkForUpdates = async () => {
         try {
-            addToast(t('update_available'), 'info') // Optimistic feedback
-            await window.api.system.checkForUpdates()
+            addToast(t('checking_for_updates'), 'info')
+
+            const updateInfo = await window.api.system.checkForUpdates()
+            const currentVersion = await window.api.system.getVersion()
+
+            if (updateInfo && updateInfo.version !== currentVersion) {
+                addToast(t('update_available'), 'success')
+            } else {
+                addToast(t('update_not_found'), 'info')
+            }
         } catch (error) {
             console.error('Update check failed:', error)
+            addToast(t('update_error'), 'error')
         }
     }
 

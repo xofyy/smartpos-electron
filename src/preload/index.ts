@@ -27,6 +27,7 @@ const api = {
     factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
     backup: () => ipcRenderer.invoke('system:backup'),
     checkForUpdates: () => ipcRenderer.invoke('system:checkForUpdates'),
+    getVersion: () => ipcRenderer.invoke('system:getVersion'),
     onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_, status) => callback(status))
   },
   hardware: {

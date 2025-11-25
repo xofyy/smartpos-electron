@@ -95,7 +95,10 @@ export const translations = {
         export_success: 'Rapor başarıyla kaydedildi:',
         export_fail: 'Rapor kaydedilemedi!',
         update_available: 'Yeni güncelleme mevcut. İndiriliyor...',
-        update_downloaded: 'Güncelleme indi. Uygulamayı yeniden başlatın.'
+        update_downloaded: 'Güncelleme indi. Uygulamayı yeniden başlatın.',
+        checking_for_updates: 'Güncellemeler kontrol ediliyor...',
+        update_not_found: 'Güncel sürümü kullanıyorsunuz.',
+        update_error: 'Güncelleme kontrolü başarısız!'
     },
     en: {
         // Navigation
@@ -193,7 +196,10 @@ export const translations = {
         export_success: 'Report saved successfully:',
         export_fail: 'Failed to save report!',
         update_available: 'New update available. Downloading...',
-        update_downloaded: 'Update downloaded. Restart application.'
+        update_downloaded: 'Update downloaded. Restart application.',
+        checking_for_updates: 'Checking for updates...',
+        update_not_found: 'You are using the latest version.',
+        update_error: 'Update check failed!'
     }
 }
 

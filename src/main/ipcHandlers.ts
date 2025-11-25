@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, app } from 'electron'
 import { ProductRepository } from './repositories/ProductRepository'
 import { ProductController } from './controllers/ProductController'
 import { SalesRepository } from './repositories/SalesRepository'
@@ -60,12 +60,6 @@ export function setupIpcHandlers() {
     return await reportsController.getSummaryStats(date)
   })
 
-  // System Handlers
-  ipcMain.handle('system:checkForUpdates', async () => {
-    const { autoUpdater } = await import('electron-updater')
-    autoUpdater.checkForUpdates()
-  })
-
   ipcMain.handle('reports:export', async (_, startDate, endDate) => {
     try {
       const csvData = await reportsController.exportReport(startDate, endDate)
@@ -88,6 +82,13 @@ export function setupIpcHandlers() {
     }
   })
 
+  // System Handlers
+  ipcMain.handle('system:checkForUpdates', async () => {
+    const { autoUpdater } = await import('electron-updater')
+    const result = await autoUpdater.checkForUpdates()
+    return result?.updateInfo
+  })
+
   // Settings Handlers
   ipcMain.handle('settings:getAll', async () => {
     return await settingsController.getAll()
@@ -104,6 +105,10 @@ export function setupIpcHandlers() {
 
   ipcMain.handle('system:backup', async () => {
     return await settingsController.backupData()
+  })
+
+  ipcMain.handle('system:getVersion', () => {
+    return app.getVersion()
   })
 
   // Hardware Handlers
