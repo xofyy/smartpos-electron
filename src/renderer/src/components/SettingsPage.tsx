@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Monitor, Trash2, HardDrive, CreditCard } from 'lucide-react'
+import { Monitor, Trash2, HardDrive, CreditCard, RefreshCw } from 'lucide-react'
 import { useSettingsStore } from '../store/useSettingsStore'
 import { useTranslation } from '../hooks/useTranslation'
 import { useToastStore } from '../store/useToastStore'
@@ -52,6 +52,15 @@ export function SettingsPage() {
         } catch (error) {
             console.error('Backup failed:', error)
             addToast(t('backup_fail'), 'error')
+        }
+    }
+
+    const checkForUpdates = async () => {
+        try {
+            addToast(t('update_available'), 'info') // Optimistic feedback
+            await window.api.system.checkForUpdates()
+        } catch (error) {
+            console.error('Update check failed:', error)
         }
     }
 
@@ -149,6 +158,16 @@ export function SettingsPage() {
                                 value={settings.low_stock_threshold}
                                 onChange={(e) => updateSetting('low_stock_threshold', parseInt(e.target.value))}
                             />
+                        </div>
+
+                        <div className="pt-6 border-t dark:border-gray-700">
+                            <button
+                                onClick={checkForUpdates}
+                                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw size={20} />
+                                <span>Check for Updates</span>
+                            </button>
                         </div>
                     </div>
                 )}

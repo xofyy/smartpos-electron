@@ -60,6 +60,12 @@ export function setupIpcHandlers() {
     return await reportsController.getSummaryStats(date)
   })
 
+  // System Handlers
+  ipcMain.handle('system:checkForUpdates', async () => {
+    const { autoUpdater } = await import('electron-updater')
+    autoUpdater.checkForUpdates()
+  })
+
   ipcMain.handle('reports:export', async (_, startDate, endDate) => {
     try {
       const csvData = await reportsController.exportReport(startDate, endDate)
