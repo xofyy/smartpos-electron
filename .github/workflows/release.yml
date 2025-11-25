@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Dependencies
         env:
-          CXXFLAGS: /DNOMINMAX
+          CL: /DNOMINMAX
         run: npm ci
 
       - name: Build and Release
