@@ -103,7 +103,9 @@ export const translations = {
         downloading: 'İndiriliyor...',
         restart_to_install: 'Yeniden Başlat ve Yükle',
         version_available: 'Yeni sürüm mevcut:',
-        update_ready_desc: 'Güncelleme indirildi. Değişiklikleri uygulamak için uygulamayı yeniden başlatın.'
+        update_ready_desc: 'Güncelleme indirildi. Değişiklikleri uygulamak için uygulamayı yeniden başlatın.',
+        software_update: 'Yazılım Güncelleme',
+        download_update: 'Güncellemeyi İndir'
     },
     en: {
         // Navigation
@@ -209,7 +211,9 @@ export const translations = {
         downloading: 'Downloading...',
         restart_to_install: 'Restart & Install',
         version_available: 'New version available:',
-        update_ready_desc: 'Update downloaded. Restart the application to apply changes.'
+        update_ready_desc: 'Update downloaded. Restart the application to apply changes.',
+        software_update: 'Software Update',
+        download_update: 'Download Update'
     }
 }
 

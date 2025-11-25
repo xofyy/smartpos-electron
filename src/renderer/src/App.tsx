@@ -49,7 +49,7 @@ function Layout() {
     window.addEventListener('keydown', handleKeyDown)
 
     // Update listeners
-    window.api.system.onUpdateStatus((data) => {
+    const cleanupStatus = window.api.system.onUpdateStatus((data) => {
       if (data.status === 'available') {
         addToast(t('update_available'), 'info')
       } else if (data.status === 'downloaded') {
@@ -57,7 +57,10 @@ function Layout() {
       }
     })
 
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      cleanupStatus()
+    }
   }, [addToast, t]) // Dependencies for useEffect
 
   return (

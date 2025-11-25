@@ -30,8 +30,20 @@ const api = {
     getVersion: () => ipcRenderer.invoke('system:getVersion'),
     factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
     backup: () => ipcRenderer.invoke('system:backup'),
-    onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_, value) => callback(value)),
-    onUpdateProgress: (callback) => ipcRenderer.on('update-progress', (_, value) => callback(value))
+    onUpdateStatus: (callback) => {
+      const subscription = (_event, value) => callback(value)
+      ipcRenderer.on('update-status', subscription)
+      return () => {
+        ipcRenderer.removeListener('update-status', subscription)
+      }
+    },
+    onUpdateProgress: (callback) => {
+      const subscription = (_event, value) => callback(value)
+      ipcRenderer.on('update-progress', subscription)
+      return () => {
+        ipcRenderer.removeListener('update-progress', subscription)
+      }
+    }
   },
   hardware: {
     listPorts: () => ipcRenderer.invoke('hardware:listPorts'),

@@ -43,7 +43,7 @@ export function SettingsPage() {
         loadVersion()
 
         // Update Listeners
-        window.api.system.onUpdateStatus((data) => {
+        const cleanupStatus = window.api.system.onUpdateStatus((data) => {
             console.log('Update Status:', data)
             setUpdateStatus(data.status)
             if (data.info) setUpdateInfo(data.info)
@@ -62,12 +62,13 @@ export function SettingsPage() {
             }
         })
 
-        window.api.system.onUpdateProgress((data) => {
+        const cleanupProgress = window.api.system.onUpdateProgress((data) => {
             setDownloadProgress(data.percent)
         })
 
         return () => {
-            // Cleanup listeners if possible
+            cleanupStatus()
+            cleanupProgress()
         }
     }, [])
 
@@ -230,7 +231,7 @@ export function SettingsPage() {
 
                         <div className="pt-6 border-t dark:border-gray-700 space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-medium text-gray-900 dark:text-white">Software Update</h3>
+                                <h3 className="font-medium text-gray-900 dark:text-white">{t('software_update')}</h3>
                                 <span className="text-sm text-gray-500">v{appVersion}</span>
                             </div>
 
@@ -260,7 +261,7 @@ export function SettingsPage() {
                                         onClick={startDownload}
                                         className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                                     >
-                                        Download Update
+                                        {t('download_update')}
                                     </button>
                                 </div>
                             )}
