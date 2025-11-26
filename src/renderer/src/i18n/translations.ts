@@ -108,7 +108,9 @@ export const translations = {
         download_update: 'Güncellemeyi İndir',
         no_results_desc: 'Arama kriterlerinize uygun ürün bulunamadı.',
         add_product_desc: 'Başlamak için yeni bir ürün ekleyin.',
-        cart_empty_desc: 'Sepete ürün eklemek için barkod okutun veya listeden seçin.'
+        cart_empty_desc: 'Satışa başlamak için barkod okutun veya listeden ürün seçin.',
+        no_products_found: 'Ürün bulunamadı',
+        try_adjusting_search: 'Arama terimini veya kategori filtresini değiştirmeyi deneyin',
     },
     en: {
         // Navigation
@@ -219,7 +221,9 @@ export const translations = {
         download_update: 'Download Update',
         no_results_desc: 'No products found matching your search.',
         add_product_desc: 'Add a new product to get started.',
-        cart_empty_desc: 'Scan a barcode or select from the list to add items.'
+        cart_empty_desc: 'Scan a barcode or select from the list to add items.',
+        no_products_found: 'No products found',
+        try_adjusting_search: 'Try adjusting your search or category filter',
     }
 }
 

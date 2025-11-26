@@ -6,8 +6,8 @@ export const ProductSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   price: z.number().min(0, 'Price must be non-negative'),
   stock: z.number(),
-  category: z.string().min(1, 'Category is required'),
-  is_deleted: z.boolean().optional()
+  category: z.string(), // Removed .min(1) to allow empty category
+  is_deleted: z.union([z.boolean(), z.number().transform(n => !!n)]).optional() // Handle 0/1 from SQLite
 })
 
 export const CartItemSchema = ProductSchema.extend({
