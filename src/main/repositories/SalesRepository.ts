@@ -1,19 +1,5 @@
 import db, { run } from '../database'
-
-export interface SaleItem {
-  id: number
-  name: string
-  quantity: number
-  price: number
-}
-
-export interface Sale {
-  uuid: string
-  date: string
-  total_amount: number
-  payment_method: string
-  items: SaleItem[]
-}
+import { Sale } from '../../shared/types'
 
 export interface ISalesRepository {
   processSale(sale: Sale): Promise<boolean>

@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useCartStore } from '../store/useCartStore'
+import { useCart } from './useCart'
+import { PaymentMethod } from '../types'
 
 export function useCheckout() {
-  const { cart, totalAmount, clearCart } = useCartStore()
+  const { cart, totalAmount, clearCart } = useCart()
   const [processing, setProcessing] = useState(false)
 
-  const processSale = async (paymentMethod: string = 'cash') => {
+  const processSale = async (paymentMethod: PaymentMethod = 'cash') => {
     if (cart.length === 0) return false
 
     setProcessing(true)

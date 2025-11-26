@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { Product, Sale, Settings } from '../shared/types'
 
 declare global {
   interface Window {
@@ -12,7 +13,7 @@ declare global {
         getByBarcode: (barcode: string) => Promise<Product | null>
       }
       sales: {
-        process: (sale: any) => Promise<boolean>
+        process: (sale: Sale) => Promise<boolean>
       }
       reports: {
         getDailySales: (startDate: string, endDate: string) => Promise<any[]>

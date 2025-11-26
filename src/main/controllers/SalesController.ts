@@ -1,13 +1,13 @@
-import { ISalesRepository, Sale } from '../repositories/SalesRepository'
+import { ISalesRepository } from '../repositories/SalesRepository'
+import { Sale } from '../../shared/types'
+
+import { SaleSchema } from '../../shared/schemas'
 
 export class SalesController {
   constructor(private salesRepository: ISalesRepository) {}
 
   async processSale(sale: Sale) {
-    // Business logic: e.g., check stock levels before processing
-    if (!sale.items || sale.items.length === 0) {
-      throw new Error('Sale must have items')
-    }
-    return await this.salesRepository.processSale(sale)
+    const validatedSale = SaleSchema.parse(sale)
+    return await this.salesRepository.processSale(validatedSale)
   }
 }

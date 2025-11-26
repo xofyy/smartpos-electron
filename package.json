@@ -35,6 +35,7 @@
     "serialport": "^13.0.0",
     "sqlite3": "^5.1.7",
     "tailwind-merge": "^3.4.0",
+    "zod": "^4.1.13",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

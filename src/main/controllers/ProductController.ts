@@ -1,4 +1,7 @@
-import { IProductRepository, Product } from '../repositories/ProductRepository'
+import { IProductRepository } from '../repositories/ProductRepository'
+import { Product } from '../../shared/types'
+
+import { ProductSchema } from '../../shared/schemas'
 
 export class ProductController {
   constructor(private productRepository: IProductRepository) {}
@@ -8,15 +11,13 @@ export class ProductController {
   }
 
   async add(product: Product) {
-    // Validation logic can go here
-    if (!product.barcode || !product.name) {
-      throw new Error('Invalid product data')
-    }
-    return await this.productRepository.add(product)
+    const validatedProduct = ProductSchema.parse(product)
+    return await this.productRepository.add(validatedProduct)
   }
 
   async update(product: Product) {
-    return await this.productRepository.update(product)
+    const validatedProduct = ProductSchema.parse(product)
+    return await this.productRepository.update(validatedProduct)
   }
 
   async delete(id: number) {

@@ -11,6 +11,8 @@ import { ReportsController } from './controllers/ReportsController'
 // @ts-ignore
 import { listPorts, sendToPos } from './posService'
 import fs from 'fs'
+import { IPC_CHANNELS } from '../shared/constants'
+import { registerHandler } from './utils/ipcHelper'
 
 export function setupIpcHandlers() {
   const productRepository = new ProductRepository()
@@ -24,166 +26,147 @@ export function setupIpcHandlers() {
   const reportsController = new ReportsController(reportsRepository)
 
   // Product Handlers
-  ipcMain.handle('products:getAll', async () => {
+  registerHandler(IPC_CHANNELS.PRODUCTS.GET_ALL, async () => {
     return await productController.getAll()
   })
 
-  ipcMain.handle('products:add', async (_, product) => {
+  registerHandler(IPC_CHANNELS.PRODUCTS.ADD, async (_, product) => {
     return await productController.add(product)
   })
 
-  ipcMain.handle('products:update', async (_, product) => {
+  registerHandler(IPC_CHANNELS.PRODUCTS.UPDATE, async (_, product) => {
     return await productController.update(product)
   })
 
-  ipcMain.handle('products:delete', async (_, id) => {
+  registerHandler(IPC_CHANNELS.PRODUCTS.DELETE, async (_, id) => {
     return await productController.delete(id)
   })
 
-  ipcMain.handle('products:getByBarcode', async (_, barcode) => {
+  registerHandler(IPC_CHANNELS.PRODUCTS.GET_BY_BARCODE, async (_, barcode) => {
     return await productController.getByBarcode(barcode)
   })
 
   // Sales Handlers
-  ipcMain.handle('sales:process', async (_, sale) => {
+  registerHandler(IPC_CHANNELS.SALES.PROCESS, async (_, sale) => {
     return await salesController.processSale(sale)
   })
 
   // Reports Handlers
-  ipcMain.handle('reports:getDailySales', async (_, startDate, endDate) => {
+  registerHandler(IPC_CHANNELS.REPORTS.GET_DAILY_SALES, async (_, startDate, endDate) => {
     return await reportsController.getDailySales(startDate, endDate)
   })
 
-  ipcMain.handle('reports:getTopProducts', async (_, limit) => {
+  registerHandler(IPC_CHANNELS.REPORTS.GET_TOP_PRODUCTS, async (_, limit) => {
     return await reportsController.getTopProducts(limit)
   })
 
-  ipcMain.handle('reports:getSummaryStats', async (_, date) => {
+  registerHandler(IPC_CHANNELS.REPORTS.GET_SUMMARY_STATS, async (_, date) => {
     return await reportsController.getSummaryStats(date)
   })
 
-  ipcMain.handle('reports:export', async (_, startDate, endDate) => {
-    try {
-      const csvData = await reportsController.exportReport(startDate, endDate)
-      if (!csvData) return { success: false, message: 'No data to export' }
+  registerHandler(IPC_CHANNELS.REPORTS.EXPORT, async (_, startDate, endDate) => {
+    const csvData = await reportsController.exportReport(startDate, endDate)
+    if (!csvData) return { success: false, message: 'No data to export' }
 
-      const { filePath } = await dialog.showSaveDialog({
-        title: 'Export Sales Report',
-        defaultPath: `sales_report_${startDate}_${endDate}.csv`,
-        filters: [{ name: 'CSV Files', extensions: ['csv'] }]
-      })
+    const { filePath } = await dialog.showSaveDialog({
+      title: 'Export Sales Report',
+      defaultPath: `sales_report_${startDate}_${endDate}.csv`,
+      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
+    })
 
-      if (filePath) {
-        fs.writeFileSync(filePath, csvData, 'utf-8')
-        return { success: true, path: filePath }
-      }
-      return { success: false, message: 'Cancelled' }
-    } catch (error) {
-      console.error('Export failed:', error)
-      return { success: false, message: 'Export failed' }
+    if (filePath) {
+      fs.writeFileSync(filePath, csvData, 'utf-8')
+      return { success: true, path: filePath }
     }
+    return { success: false, message: 'Cancelled' }
   })
 
   // System Handlers
-  // System Handlers
-  ipcMain.handle('system:checkForUpdates', async () => {
-    try {
-      const module = await import('electron-updater')
-      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
-      
-      if (!autoUpdater) {
-        throw new Error('Failed to load autoUpdater')
-      }
-
-      // Configure autoUpdater
-      autoUpdater.logger = console
-      autoUpdater.autoDownload = false // We want to control when to download
-
-      // Remove previous listeners to avoid duplicates
-      autoUpdater.removeAllListeners()
-
-      // Set up event listeners
-
-      autoUpdater.on('update-available', (info) => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-status', { status: 'available', info })
-      })
-
-      autoUpdater.on('update-not-available', (info) => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-status', { status: 'not-available', info })
-      })
-
-      autoUpdater.on('error', (err) => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-status', { status: 'error', error: err.message })
-      })
-
-      autoUpdater.on('download-progress', (progressObj) => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-progress', { percent: progressObj.percent })
-      })
-
-      autoUpdater.on('update-downloaded', (info) => {
-        const win = BrowserWindow.getAllWindows()[0]
-        if (win) win.webContents.send('update-status', { status: 'downloaded', info })
-      })
-
-      const result = await autoUpdater.checkForUpdates()
-      return { success: true, updateInfo: result?.updateInfo }
-    } catch (error: any) {
-      console.error('Update check failed:', error)
-      return { success: false, error: error.message || 'Unknown error' }
+  registerHandler(IPC_CHANNELS.SYSTEM.CHECK_FOR_UPDATES, async () => {
+    const module = await import('electron-updater')
+    const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+    
+    if (!autoUpdater) {
+      throw new Error('Failed to load autoUpdater')
     }
+
+    // Configure autoUpdater
+    autoUpdater.logger = console
+    autoUpdater.autoDownload = false // We want to control when to download
+
+    // Remove previous listeners to avoid duplicates
+    autoUpdater.removeAllListeners()
+
+    // Set up event listeners
+
+    autoUpdater.on('update-available', (info) => {
+      const win = BrowserWindow.getAllWindows()[0]
+      if (win) win.webContents.send(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, { status: 'available', info })
+    })
+
+    autoUpdater.on('update-not-available', (info) => {
+      const win = BrowserWindow.getAllWindows()[0]
+      if (win) win.webContents.send(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, { status: 'not-available', info })
+    })
+
+    autoUpdater.on('error', (err) => {
+      const win = BrowserWindow.getAllWindows()[0]
+      if (win) win.webContents.send(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, { status: 'error', error: err.message })
+    })
+
+    autoUpdater.on('download-progress', (progressObj) => {
+      const win = BrowserWindow.getAllWindows()[0]
+      if (win) win.webContents.send(IPC_CHANNELS.SYSTEM.ON_UPDATE_PROGRESS, { percent: progressObj.percent })
+    })
+
+    autoUpdater.on('update-downloaded', (info) => {
+      const win = BrowserWindow.getAllWindows()[0]
+      if (win) win.webContents.send(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, { status: 'downloaded', info })
+    })
+
+    const result = await autoUpdater.checkForUpdates()
+    return { success: true, updateInfo: result?.updateInfo }
   })
 
-  ipcMain.handle('system:startDownload', async () => {
-    try {
-      const module = await import('electron-updater')
-      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
-      if (autoUpdater) {
-        await autoUpdater.downloadUpdate()
-        return { success: true }
-      }
-      return { success: false, error: 'AutoUpdater not initialized' }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+  registerHandler(IPC_CHANNELS.SYSTEM.START_DOWNLOAD, async () => {
+    const module = await import('electron-updater')
+    const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+    if (autoUpdater) {
+      await autoUpdater.downloadUpdate()
+      return { success: true }
     }
+    return { success: false, error: 'AutoUpdater not initialized' }
   })
 
-  ipcMain.handle('system:installUpdate', async () => {
-    try {
-      const module = await import('electron-updater')
-      const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
-      if (autoUpdater) {
-        autoUpdater.quitAndInstall()
-        return { success: true }
-      }
-      return { success: false, error: 'AutoUpdater not initialized' }
-    } catch (error: any) {
-      return { success: false, error: error.message }
+  registerHandler(IPC_CHANNELS.SYSTEM.INSTALL_UPDATE, async () => {
+    const module = await import('electron-updater')
+    const autoUpdater = module.autoUpdater || (module.default as any)?.autoUpdater
+    if (autoUpdater) {
+      autoUpdater.quitAndInstall()
+      return { success: true }
     }
+    return { success: false, error: 'AutoUpdater not initialized' }
   })
 
-  ipcMain.handle('system:getVersion', async () => {
+  registerHandler(IPC_CHANNELS.SYSTEM.GET_VERSION, async () => {
     return app.getVersion()
   })
 
   // Settings Handlers
-  ipcMain.handle('settings:getAll', async () => {
+  registerHandler(IPC_CHANNELS.SETTINGS.GET_ALL, async () => {
     return await settingsController.getAll()
   })
 
   // System Handlers
-  ipcMain.handle('system:factoryReset', async () => {
+  registerHandler(IPC_CHANNELS.SYSTEM.FACTORY_RESET, async () => {
     return await settingsController.factoryReset()
   })
 
-  ipcMain.handle('system:backup', async () => {
+  registerHandler(IPC_CHANNELS.SYSTEM.BACKUP, async () => {
     return await settingsController.backupData()
   })
 
-  ipcMain.handle('system:confirm', async (_, { message, title }) => {
+  registerHandler(IPC_CHANNELS.SYSTEM.CONFIRM, async (_, { message, title }) => {
     const { response } = await dialog.showMessageBox({
       type: 'question',
       buttons: ['Yes', 'No'],
@@ -195,7 +178,7 @@ export function setupIpcHandlers() {
   })
 
   // Hardware Handlers
-  ipcMain.handle('hardware:listPorts', async () => {
+  registerHandler(IPC_CHANNELS.HARDWARE.LIST_PORTS, async () => {
     return await listPorts()
   })
 
@@ -219,7 +202,7 @@ export function setupIpcHandlers() {
   initHardware()
 
   // Re-init on settings change
-  ipcMain.handle('settings:set', async (_, { key, value }) => {
+  registerHandler(IPC_CHANNELS.SETTINGS.SET, async (_, { key, value }) => {
     await settingsController.set(key, value)
     if (key === 'scanner_port' || key === 'scanner_type') {
       initHardware()
@@ -227,12 +210,12 @@ export function setupIpcHandlers() {
   })
 
   // Window Controls
-  ipcMain.on('window-minimize', (event) => {
+  ipcMain.on(IPC_CHANNELS.WINDOW.MINIMIZE, (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     win?.minimize()
   })
 
-  ipcMain.on('window-maximize', (event) => {
+  ipcMain.on(IPC_CHANNELS.WINDOW.MAXIMIZE, (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (win?.isMaximized()) {
       win.unmaximize()
@@ -241,7 +224,7 @@ export function setupIpcHandlers() {
     }
   })
 
-  ipcMain.on('window-close', (event) => {
+  ipcMain.on(IPC_CHANNELS.WINDOW.CLOSE, (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     win?.close()
   })

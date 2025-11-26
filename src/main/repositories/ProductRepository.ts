@@ -1,13 +1,5 @@
 import { run, get, all } from '../database'
-
-export interface Product {
-  id?: number
-  barcode: string
-  name: string
-  price: number
-  stock: number
-  category: string
-}
+import { Product } from '../../shared/types'
 
 export interface IProductRepository {
   getAll(): Promise<Product[]>

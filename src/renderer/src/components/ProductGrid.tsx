@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useCartStore } from '../store/useCartStore'
+import { useCart } from '../hooks/useCart'
 import { useProducts } from '../hooks/useProducts'
 import { useTranslation } from '../hooks/useTranslation'
 import { useSettingsStore } from '../store/useSettingsStore'
+import { Product } from '../types'
 
 export function ProductGrid() {
-    const { addToCart } = useCartStore()
+    const { addToCart } = useCart()
     const { products } = useProducts()
     const { settings } = useSettingsStore()
     const { t } = useTranslation()
@@ -55,7 +56,7 @@ export function ProductGrid() {
                     {filteredProducts.map(product => (
                         <button
                             key={product.id}
-                            onClick={() => addToCart(product)}
+                            onClick={() => product.id && addToCart(product as Product & { id: number })}
                             className="flex flex-col items-start p-4 border dark:border-gray-700 rounded-lg hover:border-blue-500 hover:shadow-md transition bg-white dark:bg-gray-700 text-left group"
                         >
                             <div className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 h-12 mb-2">

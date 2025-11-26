@@ -1,6 +1,6 @@
 import { Trash2, Plus, Minus, CreditCard, Banknote, ShoppingCart } from 'lucide-react'
 import { EmptyState } from './EmptyState'
-import { useCartStore } from '../store/useCartStore'
+import { useCart } from '../hooks/useCart'
 import { useProducts } from '../hooks/useProducts'
 import { useCheckout } from '../hooks/useCheckout'
 import { useSettingsStore } from '../store/useSettingsStore'
@@ -8,7 +8,7 @@ import { useTranslation } from '../hooks/useTranslation'
 import { useToastStore } from '../store/useToastStore'
 
 export function CartPanel() {
-    const { cart, removeFromCart, updateQuantity, totalAmount } = useCartStore()
+    const { cart, removeFromCart, updateQuantity, totalAmount } = useCart()
     const { processSale, processing } = useCheckout()
     const { settings } = useSettingsStore()
     const { t } = useTranslation()

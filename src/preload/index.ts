@@ -1,58 +1,62 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+import { IPC_CHANNELS } from '../shared/constants'
+
+import { Product, Sale } from '../shared/types'
+
 // Custom APIs for renderer
 const api = {
   products: {
-    getAll: () => ipcRenderer.invoke('products:getAll'),
-    add: (product) => ipcRenderer.invoke('products:add', product),
-    update: (product) => ipcRenderer.invoke('products:update', product),
-    delete: (id) => ipcRenderer.invoke('products:delete', id),
-    getByBarcode: (barcode) => ipcRenderer.invoke('products:getByBarcode', barcode)
+    getAll: () => ipcRenderer.invoke(IPC_CHANNELS.PRODUCTS.GET_ALL),
+    add: (product: Product) => ipcRenderer.invoke(IPC_CHANNELS.PRODUCTS.ADD, product),
+    update: (product: Product) => ipcRenderer.invoke(IPC_CHANNELS.PRODUCTS.UPDATE, product),
+    delete: (id: number) => ipcRenderer.invoke(IPC_CHANNELS.PRODUCTS.DELETE, id),
+    getByBarcode: (barcode: string) => ipcRenderer.invoke(IPC_CHANNELS.PRODUCTS.GET_BY_BARCODE, barcode)
   },
   sales: {
-    process: (sale) => ipcRenderer.invoke('sales:process', sale)
+    process: (sale: Sale) => ipcRenderer.invoke(IPC_CHANNELS.SALES.PROCESS, sale)
   },
   reports: {
-    getDailySales: (startDate, endDate) => ipcRenderer.invoke('reports:getDailySales', startDate, endDate),
-    getTopProducts: (limit) => ipcRenderer.invoke('reports:getTopProducts', limit),
-    getSummaryStats: (date) => ipcRenderer.invoke('reports:getSummaryStats', date),
-    export: (startDate, endDate) => ipcRenderer.invoke('reports:export', startDate, endDate)
+    getDailySales: (startDate: string, endDate: string) => ipcRenderer.invoke(IPC_CHANNELS.REPORTS.GET_DAILY_SALES, startDate, endDate),
+    getTopProducts: (limit: number) => ipcRenderer.invoke(IPC_CHANNELS.REPORTS.GET_TOP_PRODUCTS, limit),
+    getSummaryStats: (date: string) => ipcRenderer.invoke(IPC_CHANNELS.REPORTS.GET_SUMMARY_STATS, date),
+    export: (startDate: string, endDate: string) => ipcRenderer.invoke(IPC_CHANNELS.REPORTS.EXPORT, startDate, endDate)
   },
   settings: {
-    getAll: () => ipcRenderer.invoke('settings:getAll'),
-    set: (key, value) => ipcRenderer.invoke('settings:set', { key, value })
+    getAll: () => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS.GET_ALL),
+    set: (key: string, value: string) => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS.SET, { key, value })
   },
   system: {
-    checkForUpdates: () => ipcRenderer.invoke('system:checkForUpdates'),
-    startDownload: () => ipcRenderer.invoke('system:startDownload'),
-    installUpdate: () => ipcRenderer.invoke('system:installUpdate'),
-    getVersion: () => ipcRenderer.invoke('system:getVersion'),
-    factoryReset: () => ipcRenderer.invoke('system:factoryReset'),
-    backup: () => ipcRenderer.invoke('system:backup'),
-    confirm: (message, title) => ipcRenderer.invoke('system:confirm', { message, title }),
-    onUpdateStatus: (callback) => {
-      const subscription = (_event, value) => callback(value)
-      ipcRenderer.on('update-status', subscription)
+    checkForUpdates: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.CHECK_FOR_UPDATES),
+    startDownload: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.START_DOWNLOAD),
+    installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.INSTALL_UPDATE),
+    getVersion: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.GET_VERSION),
+    factoryReset: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.FACTORY_RESET),
+    backup: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.BACKUP),
+    confirm: (message: string, title?: string) => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM.CONFIRM, { message, title }),
+    onUpdateStatus: (callback: (status: any) => void) => {
+      const subscription = (_event: any, value: any) => callback(value)
+      ipcRenderer.on(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, subscription)
       return () => {
-        ipcRenderer.removeListener('update-status', subscription)
+        ipcRenderer.removeListener(IPC_CHANNELS.SYSTEM.ON_UPDATE_STATUS, subscription)
       }
     },
-    onUpdateProgress: (callback) => {
-      const subscription = (_event, value) => callback(value)
-      ipcRenderer.on('update-progress', subscription)
+    onUpdateProgress: (callback: (progress: any) => void) => {
+      const subscription = (_event: any, value: any) => callback(value)
+      ipcRenderer.on(IPC_CHANNELS.SYSTEM.ON_UPDATE_PROGRESS, subscription)
       return () => {
-        ipcRenderer.removeListener('update-progress', subscription)
+        ipcRenderer.removeListener(IPC_CHANNELS.SYSTEM.ON_UPDATE_PROGRESS, subscription)
       }
     }
   },
   hardware: {
-    listPorts: () => ipcRenderer.invoke('hardware:listPorts')
+    listPorts: () => ipcRenderer.invoke(IPC_CHANNELS.HARDWARE.LIST_PORTS)
   },
   windowControl: {
-    minimize: () => ipcRenderer.send('window-minimize'),
-    maximize: () => ipcRenderer.send('window-maximize'),
-    close: () => ipcRenderer.send('window-close')
+    minimize: () => ipcRenderer.send(IPC_CHANNELS.WINDOW.MINIMIZE),
+    maximize: () => ipcRenderer.send(IPC_CHANNELS.WINDOW.MAXIMIZE),
+    close: () => ipcRenderer.send(IPC_CHANNELS.WINDOW.CLOSE)
   }
 }
 
